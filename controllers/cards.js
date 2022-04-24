@@ -20,10 +20,14 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.cardId).then((card) => res.status(200).send({ data: card }))
+  Card.findByIdAndDelete(req.params.cardId).then((card) => {
+    if (card === null) { throw new ReferenceError('Передан несуществующий _id карточки.'); }
+    res.status(200).send({ data: card });
+  })
     .catch((err) => {
+      if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
       if (err.name === 'CastError') {
-        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
       }
       return res.status(500).send({ message: 'Ошибка по умолчанию.' });
     });
@@ -42,7 +46,7 @@ module.exports.likeCard = (req, res) => {
   })
     .catch((err) => {
       if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
       }
       return res.status(500).send({ message: 'Ошибка по умолчанию.' });
