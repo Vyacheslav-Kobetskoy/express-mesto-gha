@@ -25,7 +25,9 @@ module.exports.deleteCard = (req, res) => {
     res.status(200).send({ data: card });
   })
     .catch((err) => {
-      if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
+      if (err.name === 'ReferenceError') {
+        return res.status(404).send({ message: `${err.message}` });
+      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
       }
@@ -45,7 +47,9 @@ module.exports.likeCard = (req, res) => {
     });
   })
     .catch((err) => {
-      if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
+      if (err.name === 'ReferenceError') {
+        return res.status(404).send({ message: `${err.message}` });
+      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
       }
@@ -63,7 +67,9 @@ module.exports.dislikeCard = (req, res) => {
     res.status(200).send({ data: card });
   })
     .catch((err) => {
-      if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
+      if (err.name === 'ReferenceError') {
+        return res.status(404).send({ message: `${err.message}` });
+      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
       }

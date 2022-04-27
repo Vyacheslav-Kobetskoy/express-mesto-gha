@@ -13,7 +13,9 @@ module.exports.getUserId = (req, res) => {
         data: user,
       });
     }).catch((err) => {
-      if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
+      if (err.name === 'ReferenceError') {
+        return res.status(404).send({ message: `${err.message}` });
+      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
       }
@@ -43,7 +45,9 @@ module.exports.patchUserInfo = (req, res) => {
       res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
+      if (err.name === 'ReferenceError') {
+        return res.status(404).send({ message: `${err.message}` });
+      }
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       }
@@ -59,7 +63,9 @@ module.exports.patchAvatar = (req, res) => {
       res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') { res.status(404).send({ message: `${err.message}` }); }
+      if (err.name === 'ReferenceError') {
+        return res.status(404).send({ message: `${err.message}` });
+      }
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
       }
