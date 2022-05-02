@@ -1,5 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+
+const { auth } = require('./middlewares/auth');
+const { login, createUser } = require('./controllers/users');
 const UserRouter = require('./routes/users');
 const CardRouter = require('./routes/cards');
 
@@ -11,19 +14,17 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6264fa770b412335c0b00316',
-  };
-  next();
-});
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use(auth);
 app.use(UserRouter);
 app.use(CardRouter);
 app.use((req, res) => res.status(404).send({ message: '404 Not Found' }));
 
-// app.listen(PORT, () => {
-//   // Если всё работает, консоль покажет, какой порт приложение слушает
-//   console.log(`App listening on port ${PORT}`);
-// });
+app.listen(PORT, () => {
+  // Если всё работает, консоль покажет, какой порт приложение слушает
+  // eslint-disable-next-line no-console
+  console.log(`App listening on port ${PORT}`);
+});
 
-app.listen(PORT);
+// app.listen(PORT);

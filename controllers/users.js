@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 module.exports.getUser = (req, res) => {
@@ -24,17 +26,23 @@ module.exports.getUserId = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => {
-      res.status(200).send({ data: user });
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt.hash(password, 10).then((hash) => {
+    User.create({
+      name, about, avatar, email, password: hash,
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
-      }
-      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
-    });
+      .then((user) => {
+        res.status(200).send({ data: user });
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        }
+        return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+      });
+  });
 };
 
 module.exports.patchUserInfo = (req, res) => {
@@ -70,5 +78,24 @@ module.exports.patchAvatar = (req, res) => {
         return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
       }
       return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password).then((user) => {
+    const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+    res.cookie('jwt', token, {
+      maxAge: 3600000,
+      httpOnly: true,
+      sameSite: true,
+    });
+    res.send({});
+  })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };
