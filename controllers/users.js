@@ -91,11 +91,26 @@ module.exports.login = (req, res) => {
       httpOnly: true,
       sameSite: true,
     });
-    res.send({});
+    res.send(user._id);
   })
     .catch((err) => {
       res
         .status(401)
         .send({ message: err.message });
+    });
+};
+
+module.exports.getUserMe = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user._id) {
+        throw new Error('Пользователь с указанным _id не найден.');
+      }
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new Error('Переданы некорректные данные.');
+      }
     });
 };
