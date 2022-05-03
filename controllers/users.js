@@ -110,7 +110,7 @@ module.exports.getUserMe = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new Error('Переданы некорректные данные.');
+        throw new Error('Пользователь по указанному _id не найден.');
       }
     });
 };
