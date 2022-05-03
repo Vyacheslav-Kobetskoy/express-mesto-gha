@@ -20,6 +20,13 @@ app.post('/signup', createUserJoi, createUser);
 app.use(auth);
 app.use(UserRouter);
 app.use(CardRouter);
+
+app.use((err, req, res, next) => {
+  if (err.message === 'Validation failed') { return res.status(400).send({ message: 'Ошибка валидации' }); }
+  res.send({ message: err.message });
+  return next();
+});
+
 app.use((req, res) => res.status(404).send({ message: '404 Not Found' }));
 
 app.listen(PORT, () => {

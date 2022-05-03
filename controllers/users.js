@@ -33,12 +33,16 @@ module.exports.createUser = (req, res) => {
     User.create({
       name, about, avatar, email, password: hash,
     })
-      .then((user) => {
+      .then((user) => User.findById(user._id)).then((user) => {
         res.status(200).send({ data: user });
       })
+
       .catch((err) => {
         if (err.name === 'ValidationError') {
           return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        }
+        if (err.code === 11000) {
+          return res.status(409).send({ message: 'email существует в базе данных' });
         }
         return res.status(500).send({ message: 'Ошибка по умолчанию.' });
       });
