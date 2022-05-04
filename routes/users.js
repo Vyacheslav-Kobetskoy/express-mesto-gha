@@ -1,13 +1,14 @@
 const router = require('express').Router();
 const { getUserIdJoi, patchUserInfoJoi, patchAvatarJoi } = require('../middlewares/JoiValidate');
 const {
-  getUser, getUserId, createUser, patchUserInfo, patchAvatar, getUserMe,
+  getUser, getUserId, patchUserInfo, patchAvatar, getUserMe,
 } = require('../controllers/users');
+const { auth } = require('../middlewares/auth');
 
-router.get('/users', getUser);
-router.get('/users/me', getUserMe);
-router.get('/users/:userId', getUserIdJoi, getUserId);
-router.post('/users', createUser);
+router.get('/users', auth, getUser);
+router.get('/users/me', auth, getUserMe);
+router.get('/users/:userId', getUserIdJoi, auth, getUserId);
+// router.post('/users', createUser);
 router.patch('/users/me', patchUserInfoJoi, patchUserInfo);
 router.patch('/users/me/avatar', patchAvatarJoi, patchAvatar);
 
