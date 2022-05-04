@@ -6,6 +6,9 @@ const { createUserJoi, loginJoi } = require('./middlewares/JoiValidate');
 const { login, createUser } = require('./controllers/users');
 const UserRouter = require('./routes/users');
 const CardRouter = require('./routes/cards');
+const { errorHandler } = require('./middlewares/errorHandler');
+const { auth } = require('./middlewares/auth');
+const NotFoundError = require('./error/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -20,23 +23,8 @@ app.post('/signup', createUserJoi, createUser);
 
 app.use(UserRouter);
 app.use(CardRouter);
-
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message = 'Ошибка по умолчанию.' } = err;
-  if (message === 'Validation failed') {
-    res.status(400).send({
-      message: 'Ошибка валидации',
-    });
-    return next();
-  }
-  if (statusCode) {
-    res.status(statusCode).send({ message });
-    return next();
-  }
-
-  return next();
-});
-app.use((req, res) => res.status(404).send({ message: '404 Not Found' }));
+app.use(auth, (req, res, next) => next(new NotFoundError('404 Not Found')));
+app.use(errorHandler);
 
 // app.listen(PORT, () => {
 //   // Если всё работает, консоль покажет, какой порт приложение слушает

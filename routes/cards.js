@@ -10,9 +10,9 @@ const { auth } = require('../middlewares/auth');
 const { createCardJoi, parameterIdJoi } = require('../middlewares/JoiValidate');
 
 router.get('/cards', auth, getCard);
-router.post('/cards', createCardJoi, auth, createCard);
-router.delete('/cards/:cardId', parameterIdJoi('cardId'), auth, deleteCard);
-router.put('/cards/:cardId/likes', parameterIdJoi('cardId'), auth, likeCard);
-router.delete('/cards/:cardId/likes', parameterIdJoi('cardId'), auth, dislikeCard);
+router.post('/cards', auth, createCardJoi, createCard);
+router.delete('/cards/:cardId', auth, parameterIdJoi('cardId'), deleteCard);
+router.put('/cards/:cardId/likes', auth, parameterIdJoi('cardId'), likeCard);
+router.delete('/cards/:cardId/likes', auth, parameterIdJoi('cardId'), dislikeCard);
 
 module.exports = router;

@@ -47,7 +47,7 @@ const createCardJoi = celebrate({
 
 const parameterIdJoi = (id) => celebrate({
   params: Joi.object().keys({
-    [id]: Joi.string().hex(),
+    [id]: Joi.string().length(24).hex().required(),
   }),
 });
 module.exports = {

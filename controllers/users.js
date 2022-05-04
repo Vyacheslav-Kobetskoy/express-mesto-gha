@@ -45,7 +45,7 @@ module.exports.createUser = (req, res, next) => {
         }
         next(err);
       });
-  });
+  }).catch(next);
 };
 
 module.exports.patchUserInfo = (req, res, next) => {
@@ -103,10 +103,5 @@ module.exports.getUserMe = (req, res, next) => {
       }
       res.status(200).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      }
-      next(err);
-    });
+    .catch(next);
 };

@@ -9,7 +9,7 @@ const { auth } = require('../middlewares/auth');
 
 router.get('/users', auth, getUser);
 router.get('/users/me', auth, getUserMe);
-router.get('/users/:userId', parameterIdJoi('userId'), auth, getUserId);
+router.get('/users/:userId', auth, parameterIdJoi('userId'), getUserId);
 router.patch('/users/me', auth, patchUserInfoJoi, patchUserInfo);
 router.patch('/users/me/avatar', auth, patchAvatarJoi, patchAvatar);
 
