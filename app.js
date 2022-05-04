@@ -38,10 +38,10 @@ app.use((err, req, res, next) => {
 });
 app.use((req, res) => res.status(404).send({ message: '404 Not Found' }));
 
-app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
-  // eslint-disable-next-line no-console
-  console.log(`App listening on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   // Если всё работает, консоль покажет, какой порт приложение слушает
+//   // eslint-disable-next-line no-console
+//   console.log(`App listening on port ${PORT}`);
+// });
 
-// app.listen(PORT);
+app.listen(PORT);
