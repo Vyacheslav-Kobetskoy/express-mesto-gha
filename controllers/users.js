@@ -95,7 +95,7 @@ module.exports.login = (req, res) => {
       httpOnly: true,
       sameSite: true,
     });
-    res.status(201).send({ token });
+    res.status(200).send({ token });
   })
     .catch((err) => {
       res

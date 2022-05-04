@@ -20,19 +20,30 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.cardId).then((card) => {
-    if (card === null) { throw new ReferenceError('Передан несуществующий _id карточки.'); }
-    res.status(200).send({ data: card });
-  })
-    .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        return res.status(404).send({ message: `${err.message}` });
-      }
-      if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
-      }
-      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+  Card.findById(req.params.cardId).then((card) => {
+    if (card === null) {
+      throw new ReferenceError('Передан несуществующий _id карточки.');
+    }
+    const { owner } = card;
+    if (req.user._id !== owner.toJSON()) {
+      throw new Error('Недосаточно прав для удаления карточки');
+    }
+    return Card.findByIdAndDelete(req.params.cardId).then((cardd) => {
+      if (card === null) { throw new ReferenceError('Передан несуществующий _id карточки.'); }
+      return res.status(200).send({ data: cardd });
     });
+  }).catch((err) => {
+    if (err.name === 'ReferenceError') {
+      return res.status(404).send({ message: `${err.message}` });
+    }
+    if (err.name === 'CastError') {
+      return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
+    }
+    if (err.name === 'Error') {
+      return res.status(403).send({ message: `${err.message}` });
+    }
+    return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+  });
 };
 
 module.exports.likeCard = (req, res) => {
