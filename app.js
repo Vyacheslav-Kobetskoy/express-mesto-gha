@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-// const { auth } = require('./middlewares/auth'):
 const { createUserJoi, loginJoi } = require('./middlewares/JoiValidate');
 const { login, createUser } = require('./controllers/users');
 const UserRouter = require('./routes/users');
