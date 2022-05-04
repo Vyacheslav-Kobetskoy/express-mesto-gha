@@ -1,89 +1,78 @@
 const Card = require('../models/card');
+const NotFoundError = require('../error/NotFoundError');
+const BadRequestError = require('../error/BadRequestError');
+const ForbiddenError = require('../error/ForbiddenError');
 
-module.exports.getCard = (req, res) => {
+module.exports.getCard = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Ошибка по умолчанию.' }));
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const ownerId = req.user._id;
   Card.create({ name, link, owner: ownerId })
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
+        next(new BadRequestError('Переданы некорректные данные при создании карточки.'));
       }
-      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+      next(err);
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId).then((card) => {
     if (card === null) {
-      throw new ReferenceError('Передан несуществующий _id карточки.');
+      throw new NotFoundError('Передан несуществующий _id карточки.');
     }
     const { owner } = card;
     if (req.user._id !== owner.toJSON()) {
-      throw new Error('Недосаточно прав для удаления карточки');
+      throw new ForbiddenError('Недосаточно прав для удаления карточки');
     }
-    return Card.findByIdAndDelete(req.params.cardId).then((cardd) => {
-      if (card === null) { throw new ReferenceError('Передан несуществующий _id карточки.'); }
-      return res.status(200).send({ data: cardd });
-    });
+    return Card.findByIdAndDelete(req.params.cardId)
+      .then((deleteCard) => res.status(200).send({ data: deleteCard }));
   }).catch((err) => {
-    if (err.name === 'ReferenceError') {
-      return res.status(404).send({ message: `${err.message}` });
-    }
     if (err.name === 'CastError') {
-      return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
+      next(new BadRequestError('Карточка с указанным _id не найдена.'));
     }
-    if (err.name === 'Error') {
-      return res.status(403).send({ message: `${err.message}` });
-    }
-    return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    next(err);
   });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   ).then((card) => {
-    if (card === null) { throw new ReferenceError('Передан несуществующий _id карточки.'); }
+    if (card === null) { throw new NotFoundError('Передан несуществующий _id карточки.'); }
     res.status(200).send({
       data: card,
     });
   })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        return res.status(404).send({ message: `${err.message}` });
-      }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
+        next(new BadRequestError('Переданы некорректные данные для постановки/снятии лайка.'));
       }
-      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+      next(err);
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   ).then((card) => {
-    if (card === null) { throw new ReferenceError('Передан несуществующий _id карточки.'); }
+    if (card === null) { throw new NotFoundError('Передан несуществующий _id карточки.'); }
     res.status(200).send({ data: card });
   })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        return res.status(404).send({ message: `${err.message}` });
-      }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
+        next(BadRequestError('Переданы некорректные данные для постановки/снятии лайка.'));
       }
-      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+      next(err);
     });
 };

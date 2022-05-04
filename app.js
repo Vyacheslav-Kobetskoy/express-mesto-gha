@@ -22,11 +22,20 @@ app.use(UserRouter);
 app.use(CardRouter);
 
 app.use((err, req, res, next) => {
-  if (err.message === 'Validation failed') { return res.status(400).send({ message: 'Ошибка валидации' }); }
-  res.send({ message: err.message });
+  const { statusCode = 500, message = 'Ошибка по умолчанию.' } = err;
+  if (message === 'Validation failed') {
+    res.status(400).send({
+      message: 'Ошибка валидации',
+    });
+    return next();
+  }
+  if (statusCode) {
+    res.status(statusCode).send({ message });
+    return next();
+  }
+
   return next();
 });
-
 app.use((req, res) => res.status(404).send({ message: '404 Not Found' }));
 
 app.listen(PORT, () => {
@@ -35,4 +44,4 @@ app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
 
-// app.listen(PORT);
+// app.listen(PORT):
